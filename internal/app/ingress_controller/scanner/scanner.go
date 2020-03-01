@@ -2,9 +2,7 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 
 	"net/http"
 
@@ -75,22 +73,23 @@ func main() {
 
 // GetServices gets all of the services in our cluster from the API
 func GetServices() {
-	var currServices MyServices
+	// var currServices MyServices
 	// sends request to Kubernates API to retreive services
-	// apiReq, err := http.NewRequest("GET", "localhost:8001/api/v1/services", nil)
+	apiReq, err := http.NewRequest("GET", "localhost:8001/api/v1/services", nil)
+	fmt.Println(apiReq)
 
-	response, err := http.Get("http://localhost:8001/api/v1/services")
+	// response, err := http.Get("http://localhost:8001/api/v1/services")
 
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	body, err := ioutil.ReadAll(response.Body)
-	defer response.Body.Close()
-	err = json.Unmarshal(body, &currServices)
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println(body)
-	fmt.Println(currServices)
+	// body, err := ioutil.ReadAll(response.Body)
+	// defer response.Body.Close()
+	// err = json.Unmarshal(body, &currServices)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
+	// fmt.Println(body)
+	// fmt.Println(currServices)
 }
