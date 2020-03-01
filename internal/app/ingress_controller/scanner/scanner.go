@@ -36,7 +36,7 @@ func main() {
 // GetServices gets all of the services in our cluster from the API
 func GetServices() {
 	// sends request to Kubernates API to retreive services
-	apiReq, err := http.NewRequest("GET", "localhost:8001", nil)
+	apiReq, err := http.NewRequest("GET", "localhost:8001api/v1/services", nil)
 	if err != nil {
 		fmt.Println(err)
 	}
