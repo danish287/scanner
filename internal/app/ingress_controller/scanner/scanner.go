@@ -91,6 +91,6 @@ func GetServices() {
 	if err != nil {
 		fmt.Println(err)
 	}
-
+	fmt.Println(body)
 	fmt.Println(currServices)
 }
