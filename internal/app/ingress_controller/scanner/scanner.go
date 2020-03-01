@@ -21,11 +21,11 @@ type MyServices struct {
 		SelfLink        string `json:"selfLink"`
 		ResourceVersion string `json:"resourceVersion"`
 	} `json:"metadata"`
-	Items []ServiceList `json:"items"`
+	Items []Service `json:"items"`
 }
 
-// ServiceList contains
-type ServiceList struct {
+// Service contains
+type Service struct {
 	Metadata struct {
 		Name              string    `json:"name"`
 		Namespace         string    `json:"namespace"`
@@ -81,42 +81,63 @@ func main() {
 
 // GetServices gets all of the services in our cluster from the API
 func GetServices() {
-	// currServices stores the unmarshalled JSON information of the k8s services 
-	var currServices MyServices
+
+	// api/v1/namespaces/revature.com/services/
+	// request information of services from k8s API
+	var reqServices MyServices
+	var currServices 
 	serviceURL := "http://localhost:8001/api/v1/services"
-	// create a new instance of client
-	client := http.Client{}
-	// create new request to retrieve information from k8s API
-	apiReq, err := http.NewRequest("GET", "http://localhost:8001/api/v1/services", nil)
-	if err != nil {
-		fmt.Println("FIRST ERROR", err)
-	}
-
-	// client does request, send HTTP request to recieve HTTP response
-	response, errors := client.Do(apiReq)
-	fmt.Println("RESPONSE STATUS", response.Status)
-	if errors != nil {
-		fmt.Println("SECOND ERROR", err)
-	}
-
-	// read body of the reponse recieved from oure request
-	body, err := ioutil.ReadAll(response.Body)
-	defer response.Body.Close()
-	if err != nil {
-		fmt.Println(err)
-	}
+	body := GetResponse(serviceURL)
 	
-	// unmarshall body of the request and populate structure currServices with information of out current services
-	err = json.Unmarshal(body, &currServices)
-	fmt.Println("\n\nUNMARSHALL", currServices.Items)
-	fmt.Println("L:ENGHT", len(currServices.Items))
-
-	if err != nil {
-		fmt.Println(err)
-	}
+	// unmarshall body of the request and populate structure currServices with information of current services from K8S API
+	err := json.Unmarshal(body, &reqServices)
+	if err != nil { fmt.Println("FIRST ERROR", err)}
+	fmt.Println("\n\nUNMARSHALL", reqServices.Items)
+	fmt.Println("L:ENGHT", len(reqServices.Items))
 
 }
 
-func GetResponse(url) []byte {
+// GetDeployments
+func GetDeployments() {
+	// GET /apis/apps/v1/namespaces/{namespace}/deployments/{name}
+	// request information of services from k8s API
+	var reqServices MyServices
+	var currServices 
+	serviceURL := "http://localhost:8001/apis/apps/v1/deployments"
+	body := GetResponse(serviceURL)
+	
+	// unmarshall body of the request and populate structure currServices with information of current services from K8S API
+	err := json.Unmarshal(body, &reqServices)
+	if err != nil { fmt.Println("FIRST ERROR", err)}
+	fmt.Println("\n\nUNMARSHALL", reqServices.Items)
+	fmt.Println("L:ENGHT", len(reqServices.Items))
 
+}
+
+// GetIngress 
+func GetIngress() {
+	// GET /apis/extensions/v1beta1/namespaces/{namespace}/ingresses/{name}
+
+
+	
+}
+
+// GetResponse will request response from Kubernates API
+func GetResponse(requestURL string) (respBody []byte) {
+
+	// create a new instance of client & create new request to retrieve info from k8s API
+	client := http.Client{}
+	apiReq, err := http.NewRequest("GET", requestURL, nil)
+	if err != nil { fmt.Println("FIRST ERROR", err)}
+
+	// client do request: send HTTP request & recieve HTTP response
+	response, err := client.Do(apiReq)
+	if err != nil { fmt.Println("FIRST ERROR", err)}
+
+	// read body of the reponse recieved from k8s API and defer closing body until end
+	respBody, err = ioutil.ReadAll(response.Body)
+	defer response.Body.Close()
+	if err != nil { fmt.Println("FIRST ERROR", err)}
+
+	return 
 }
