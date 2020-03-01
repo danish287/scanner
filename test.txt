@@ -1,0 +1,4 @@
+RESPONSE STATUS 200 OK
+
+
+UNMARSHALL [{{kubernetes default /api/v1/namespaces/default/services/kubernetes 1fd4f115-a0df-4429-b961-d189c102da5c 148 2020-03-01 10:18:32 +0000 UTC {apiserver kubernetes}} {[{https TCP 443 6443}] 10.96.0.1 ClusterIP None} {{}}} {{kube-dns kube-system /api/v1/namespaces/kube-system/services/kube-dns 11b51e74-282f-4245-8528-68360a4e5090 220 2020-03-01 10:18:34 +0000 UTC { }} {[{dns UDP 53 53} {dns-tcp TCP 53 53} {metrics TCP 9153 9153}] 10.96.0.10 ClusterIP None} {{}}}]

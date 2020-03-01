@@ -2,50 +2,58 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	// "log"
+	"time"
 
 	"net/http"
 
 	"os/exec"
 )
 
-// MyServices will
+// MyServices contains
 type MyServices struct {
+	Kind       string `json:"kind"`
 	APIVersion string `json:"apiVersion"`
-	Items      []struct {
-		Metadata struct {
-			CreationTimestamp string `json:"creationTimestamp"`
-			Labels            struct {
-				Component string `json:"component"`
-				Provider  string `json:"provider"`
-			} `json:"labels"`
-			Name            string `json:"name"`
-			Namespace       string `json:"namespace"`
-			ResourceVersion string `json:"resourceVersion"`
-			SelfLink        string `json:"selfLink"`
-			UID             string `json:"uid"`
-		} `json:"metadata"`
-		Spec struct {
-			ClusterIP string `json:"clusterIP"`
-			Ports     []struct {
-				Name       string `json:"name"`
-				Port       int    `json:"port"`
-				Protocol   string `json:"protocol"`
-				TargetPort int    `json:"targetPort"`
-			} `json:"ports"`
-			SessionAffinity string `json:"sessionAffinity"`
-			Type            string `json:"type"`
-		} `json:"spec"`
-		Status struct {
-			LoadBalancer struct{} `json:"loadBalancer"`
-		} `json:"status"`
-	} `json:"items"`
-	Kind     string `json:"kind"`
-	Metadata struct {
-		ResourceVersion string `json:"resourceVersion"`
+	Metadata   struct {
 		SelfLink        string `json:"selfLink"`
+		ResourceVersion string `json:"resourceVersion"`
 	} `json:"metadata"`
+	Items []ServiceList `json:"items"`
 }
+
+// ServiceList contains
+type ServiceList struct {
+	Metadata struct {
+		Name              string    `json:"name"`
+		Namespace         string    `json:"namespace"`
+		SelfLink          string    `json:"selfLink"`
+		UID               string    `json:"uid"`
+		ResourceVersion   string    `json:"resourceVersion"`
+		CreationTimestamp time.Time `json:"creationTimestamp"`
+		Labels            struct {
+			Component string `json:"component"`
+			Provider  string `json:"provider"`
+		} `json:"labels"`
+	} `json:"metadata"`
+	Spec struct {
+		Ports []struct {
+			Name       string `json:"name"`
+			Protocol   string `json:"protocol"`
+			Port       int    `json:"port"`
+			TargetPort int    `json:"targetPort"`
+		} `json:"ports"`
+		ClusterIP       string `json:"clusterIP"`
+		Type            string `json:"type"`
+		SessionAffinity string `json:"sessionAffinity"`
+	} `json:"spec"`
+	Status struct {
+		LoadBalancer struct {
+		} `json:"loadBalancer"`
+	} `json:"status"`
+} 
 
 // Route stores
 type Route struct {
@@ -61,37 +69,54 @@ type Rules struct {
 	Route    Route  `json:"Route"`
 }
 
-// RuleSet stores
-var RuleSet []Rules
+// Ruleset stores
+var Ruleset []Rules
 
 func main() {
 
-	// run the kubectl proxy with TLS credentials
+	// run the kubectl proxy without TLS credentials
 	exec.Command("kubectl", "proxy", "--insecure-skip-tls-verify").Start()
 	GetServices()
 }
 
 // GetServices gets all of the services in our cluster from the API
 func GetServices() {
-	// var currServices MyServices
-	// sends request to Kubernates API to retreive services
+	// currServices stores the unmarshalled JSON information of the k8s services 
+	var currServices MyServices
+	serviceURL := "http://localhost:8001/api/v1/services"
+	// create a new instance of client
+	client := http.Client{}
+	// create new request to retrieve information from k8s API
+	apiReq, err := http.NewRequest("GET", "http://localhost:8001/api/v1/services", nil)
+	if err != nil {
+		fmt.Println("FIRST ERROR", err)
+	}
 
-	apiReq, err := http.NewRequest("GET", "localhost:8001/api/v1/services", nil)
-	q := apiReq.URL.Query()
-	fmt.Println(q)
+	// client does request, send HTTP request to recieve HTTP response
+	response, errors := client.Do(apiReq)
+	fmt.Println("RESPONSE STATUS", response.Status)
+	if errors != nil {
+		fmt.Println("SECOND ERROR", err)
+	}
 
-	// response, err := http.Get("http://localhost:8001/api/v1/services")
+	// read body of the reponse recieved from oure request
+	body, err := ioutil.ReadAll(response.Body)
+	defer response.Body.Close()
+	if err != nil {
+		fmt.Println(err)
+	}
+	
+	// unmarshall body of the request and populate structure currServices with information of out current services
+	err = json.Unmarshal(body, &currServices)
+	fmt.Println("\n\nUNMARSHALL", currServices.Items)
+	fmt.Println("L:ENGHT", len(currServices.Items))
 
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	// body, err := ioutil.ReadAll(response.Body)
-	// defer response.Body.Close()
-	// err = json.Unmarshal(body, &currServices)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
-	// fmt.Println(body)
-	// fmt.Println(currServices)
+}
+
+func GetResponse(url) []byte {
+
 }
