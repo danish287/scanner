@@ -79,7 +79,7 @@ func GetServices() {
 	// sends request to Kubernates API to retreive services
 	// apiReq, err := http.NewRequest("GET", "localhost:8001/api/v1/services", nil)
 
-	response, err := http.Get("localhost:8001/api/v1/services")
+	response, err := http.Get("http://localhost:8001/api/v1/services")
 
 	if err != nil {
 		fmt.Println(err)
