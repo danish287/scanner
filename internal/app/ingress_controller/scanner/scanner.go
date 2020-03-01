@@ -3,7 +3,6 @@ package main
 
 import (
 	"fmt"
-	"strings"
 
 	"net/http"
 
@@ -76,9 +75,10 @@ func main() {
 func GetServices() {
 	// var currServices MyServices
 	// sends request to Kubernates API to retreive services
-	reader := strings.NewReader(`{"body":123}`)
-	apiReq, err := http.NewRequest("GET", "localhost:8001/api/v1/services", reader)
-	fmt.Println(apiReq)
+
+	apiReq, err := http.NewRequest("GET", "localhost:8001/api/v1/services", nil)
+	q := apiReq.URL.Query()
+	fmt.Println(q)
 
 	// response, err := http.Get("http://localhost:8001/api/v1/services")
 
